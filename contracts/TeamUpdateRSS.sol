@@ -13,10 +13,11 @@ contract TeamUpdateRSS is Ownable {
         string Update;
     }
 
-    uint public TeamIDCount=1;
+    
+    uint public TeamIDCount;
     mapping (uint => mapping(address => bool)) public team_whitelist;
     mapping (uint => uint) TeamtoArray ; //maps team ID to locaiton of teams array
-    string admin_page =""; //admin page
+    string admin_page ="https://google.com"; //admin page
 
     //Teams Array
     Team[] public Teams;
@@ -29,7 +30,7 @@ contract TeamUpdateRSS is Ownable {
 
 
     //Function adding Teams
-    function add_team (string memory _name, string memory _logo, string memory _update) public returns (uint) {
+    function add_team (string memory _name, string memory _logo, string memory _update) public returns (uint){
         require(msg.sender == Ownable.owner());
         Team memory newTeam;
         newTeam.Name = _name;
@@ -60,7 +61,9 @@ contract TeamUpdateRSS is Ownable {
     //function to add whitelist for a team
     function add_team_whitelist(uint _ID, address _addr) public {
         require(msg.sender == Ownable.owner());
-        require(_ID < TeamIDCount && _ID > 0);
+        require(_ID < TeamIDCount);
+        require(TeamtoArray[_ID]> 0); //team not deleted
+
         team_whitelist[_ID][_addr]=true;
     }
 
@@ -68,7 +71,9 @@ contract TeamUpdateRSS is Ownable {
     //function to remove whitelist for a team
     function del_team_whitelist(uint _ID, address _addr) public {
         require(msg.sender == Ownable.owner());
-        require(_ID < TeamIDCount && _ID > 0);
+        require(_ID < TeamIDCount);
+        require(TeamtoArray[_ID]> 0); //team not deleted
+
         team_whitelist[_ID][_addr]=false;
     }
 
@@ -78,14 +83,14 @@ contract TeamUpdateRSS is Ownable {
         return (msg.sender == Ownable.owner());
     }
 
-    //function to see if an address is admin
+    //function to get the admin page
     function get_admin_page() public view returns (string memory){
         require (msg.sender == Ownable.owner());
         return admin_page;
     }
 
 
-    //function to see if an address is admin
+    //function to set the admin page
     function set_admin_page(string memory _url) public {
         require (msg.sender == Ownable.owner());
         admin_page = _url;
@@ -93,51 +98,61 @@ contract TeamUpdateRSS is Ownable {
 
 
     //function to check to see if an address is whitelisted for a team
-    function is_addr_whitelisted(uint _ID, address _addr) public view returns (bool){
-        require(_ID < TeamIDCount && _ID > 0);
-        return team_whitelist[_ID][_addr];
+    function is_addr_whitelisted(uint _ID) public view returns (bool){
+        require(_ID < TeamIDCount);
+        require(TeamtoArray[_ID]> 0); //team not deleted
+        return team_whitelist[_ID][msg.sender];
     }
 
 
-    //function to update team name, can be called by anyone whitelisted for that team
+    //function to update team update, can be called by anyone whitelisted for that team
     function add_team_update(uint _ID, string memory _update) public {
-        require(_ID < TeamIDCount && _ID > 0);
+        require(TeamtoArray[_ID]> 0); //team not deleted
+        require(_ID < TeamIDCount);
         require(team_whitelist[_ID][msg.sender]==true);
         Teams[TeamtoArray[_ID]].Update = _update;
     }
 
     //function to update team logo, can be called by anyone whitelisted for that team
     function update_team_logo(uint _ID, string memory _logo) public {
-        require(_ID < TeamIDCount && _ID > 0);
+        require(TeamtoArray[_ID]> 0); //team not deleted
+        require(_ID < TeamIDCount );
         require(team_whitelist[_ID][msg.sender]==true);
         Teams[TeamtoArray[_ID]].Logo = _logo;
     }
 
     //function to update team name, can be called by anyone whitelisted for that team
     function update_team_name(uint _ID, string memory _name) public {
-        require(_ID < TeamIDCount && _ID > 0);
+        require(TeamtoArray[_ID]> 0); //team not deleted
+        require(_ID < TeamIDCount); 
         require(team_whitelist[_ID][msg.sender]==true);
         Teams[TeamtoArray[_ID]].Logo = _name;
     }
 
-
+    //return the total number of teams
     function get_Total_Teams() public view returns (uint) {
         return Teams.length;
     }
 
-
+    //return team update
     function get_team_update (uint _ID) public view returns (string memory){
+        require(_ID < TeamIDCount);
         return Teams[TeamtoArray[_ID]].Update;
     }
 
+    //return team name
     function get_team_name (uint _ID) public view returns (string memory){
+        require(_ID < TeamIDCount);
         return Teams[TeamtoArray[_ID]].Name;
     }
     
+    //return team logo
     function get_team_logo (uint _ID) public view returns (string memory){
+        require(_ID < TeamIDCount);
         return Teams[TeamtoArray[_ID]].Logo;
     }
     
+    //get the list of all teams
     function get_teams() public view returns(Team[] memory){
         return Teams;
     }
