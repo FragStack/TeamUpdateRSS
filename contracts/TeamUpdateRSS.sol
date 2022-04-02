@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 //@title: a contract that allows teams to provide updates on the blockchain. Whitelisted team members can add updates. Owner can add/remote teams or whitelisted team memebers.
 //@author: Dysan & FragStack Crew
-//contract addr: 0x7012da54920C5da150aDe12e21e4FB4fDc4535F2
+//contract addr: 0x405F16b9676E882b0Ad34587CE9468157f4BF380
 
 pragma solidity ^0.8.0;
 
@@ -17,6 +17,9 @@ contract TeamUpdateRSS is Ownable {
         uint ID;
         string Update;
     }
+
+    //@dev: Event for when an item for the Teams array is updated.
+    event TeamsUpdated();
 
     
     //@dev: This is the TeamID Counter. TeamIDs are not reused for deleted teams. It will keep incrementing Team IDs for new teams.
@@ -60,6 +63,7 @@ contract TeamUpdateRSS is Ownable {
         newTeam.Update = _update;
         TeamIDCount++;
         Teams.push(newTeam);
+        emit TeamsUpdated();
         return newTeam.ID;
     }
 
@@ -83,6 +87,7 @@ contract TeamUpdateRSS is Ownable {
         
         //set the deleted item to point to Teams array element 0 (place holder for deleted items)
         TeamtoArray[_id] = 0;
+        emit TeamsUpdated();
     }
 
     //@notice: function to add a wallet address to the whitelist for a team. Can only be called by contract owner.
@@ -92,6 +97,7 @@ contract TeamUpdateRSS is Ownable {
         //make sure the owner is calling this function, the ID is valid and has not been deleted.
         require(msg.sender == Ownable.owner() && _ID < TeamIDCount && TeamtoArray[_ID]> 0);
         team_whitelist[_ID][_addr]=true;
+        
     }
 
 
@@ -146,6 +152,7 @@ contract TeamUpdateRSS is Ownable {
         //make sure the caller is whitelisted, the ID is valid and has not been deleted.
         require(team_whitelist[_ID][msg.sender]==true && TeamtoArray[_ID]> 0 && _ID < TeamIDCount); 
         Teams[TeamtoArray[_ID]].Update = _update;
+        emit TeamsUpdated();
     }
 
     
@@ -156,6 +163,7 @@ contract TeamUpdateRSS is Ownable {
         //make sure the caller is whitelisted, the ID is valid and has not been deleted.
         require(team_whitelist[_ID][msg.sender]==true && TeamtoArray[_ID]> 0 && _ID < TeamIDCount); 
         Teams[TeamtoArray[_ID]].Logo = _logo;
+        emit TeamsUpdated();
     }
 
 
@@ -166,6 +174,7 @@ contract TeamUpdateRSS is Ownable {
         //make sure the caller is whitelisted, the ID is valid and has not been deleted.
         require(team_whitelist[_ID][msg.sender]==true && TeamtoArray[_ID]> 0 && _ID < TeamIDCount); 
         Teams[TeamtoArray[_ID]].Logo = _name;
+        emit TeamsUpdated();
     }
 
     //@notice: function to return the total number of teams
