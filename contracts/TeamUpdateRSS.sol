@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 //@title: a contract that allows teams to provide updates on the blockchain. Whitelisted team members can add updates. Owner can add/remote teams or whitelisted team memebers.
 //@author: Dysan & FragStack Crew
-//contract addr: 0x405F16b9676E882b0Ad34587CE9468157f4BF380
+//contract addr: 0xC4529712eFCFC264bE0f80C357775476c1986892
 
 pragma solidity ^0.8.0;
 
@@ -173,7 +173,7 @@ contract TeamUpdateRSS is Ownable {
     function update_team_name(uint _ID, string memory _name) public {
         //make sure the caller is whitelisted, the ID is valid and has not been deleted.
         require(team_whitelist[_ID][msg.sender]==true && TeamtoArray[_ID]> 0 && _ID < TeamIDCount); 
-        Teams[TeamtoArray[_ID]].Logo = _name;
+        Teams[TeamtoArray[_ID]].Name = _name;
         emit TeamsUpdated();
     }
 
